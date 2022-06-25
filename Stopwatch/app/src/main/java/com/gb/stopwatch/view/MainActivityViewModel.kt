@@ -11,7 +11,6 @@ class MainActivityViewModel : ViewModel() {
     private val stopWatchUseCase = StopWatchUseCase(TimestampMillisecondsFormatter())
 
     private val scope = CoroutineScope(Dispatchers.Main)
-
     private var job: Job? = null
 
     private val mutableLiveData: MutableLiveData<String> = MutableLiveData()
