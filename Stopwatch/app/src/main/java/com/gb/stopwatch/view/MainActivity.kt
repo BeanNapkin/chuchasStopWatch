@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
             binding.textTime.text = it
         }
 
-        viewModel.collect()
+        viewModel.update()
 
         binding.buttonStart.setOnClickListener {
             viewModel.start()

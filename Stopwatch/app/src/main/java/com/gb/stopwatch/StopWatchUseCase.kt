@@ -3,7 +3,6 @@ package com.gb.stopwatch
 class StopWatchUseCase(
     private val formatter: TimestampMillisecondsFormatter
 ) {
-
     fun start(oldState: State): State.Running =
         when (oldState) {
             is State.Running ->
@@ -15,15 +14,18 @@ class StopWatchUseCase(
                 )
         }
 
-    fun pause(state: State.Running): State.Paused = State.Paused(System.currentTimeMillis() - state.startTime + state.elapsedTime)
+    fun pause(state: State.Running): State.Paused = State.Paused(calculate(state))
 
     fun stop(): State.Paused = State.Paused(0)
 
-    fun calculate(state: State): String =
+    fun format(state: State): String =
         when (state) {
             is State.Paused -> formatter.format(state.elapsedTime)
-            is State.Running -> formatter.format(System.currentTimeMillis() - state.startTime + state.elapsedTime)
+            is State.Running -> formatter.format(calculate(state))
         }
+
+    fun calculate(state: State.Running) : Long =
+        System.currentTimeMillis() - state.startTime + state.elapsedTime
 }
 
 

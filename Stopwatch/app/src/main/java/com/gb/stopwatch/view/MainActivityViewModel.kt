@@ -5,9 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.gb.stopwatch.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 
 class MainActivityViewModel : ViewModel() {
 
@@ -17,22 +14,13 @@ class MainActivityViewModel : ViewModel() {
 
     private var job: Job? = null
 
-    private val mutableTicker = MutableStateFlow("")
-    val ticker: StateFlow<String> = mutableTicker
-
     private val mutableLiveData: MutableLiveData<String> = MutableLiveData()
     val liveData: LiveData<String> = mutableLiveData
 
     var currentState: State = State.Paused(0)
         private set
 
-    fun collect() {
-        CoroutineScope(Dispatchers.Main + SupervisorJob()).launch {
-            ticker.collect {
-                mutableLiveData.value = it
-            }
-        }
-    }
+    fun update() = mutableLiveData
 
     fun start() {
         if (job == null) {
@@ -40,7 +28,7 @@ class MainActivityViewModel : ViewModel() {
 
             job = scope.launch {
                 while (isActive) {
-                    mutableTicker.value = stopWatchUseCase.calculate(currentState)
+                    mutableLiveData.postValue(stopWatchUseCase.format(currentState))
                     delay(20)
                 }
             }
@@ -50,7 +38,7 @@ class MainActivityViewModel : ViewModel() {
     fun pause() {
         if ((currentState as? State.Running) != null){
             currentState = stopWatchUseCase.pause(currentState as State.Running)
-            mutableTicker.value = stopWatchUseCase.calculate(currentState)
+            mutableLiveData.postValue(stopWatchUseCase.format(currentState))
             scope.coroutineContext.cancelChildren()
             job = null
         }
@@ -60,6 +48,6 @@ class MainActivityViewModel : ViewModel() {
         currentState = stopWatchUseCase.stop()
         scope.coroutineContext.cancelChildren()
         job = null
-        mutableTicker.value = "00:00:000"
+        mutableLiveData.postValue("00:00:000")
     }
 }
