@@ -10,7 +10,7 @@ class MainActivityViewModel : ViewModel() {
 
     private val stopWatchUseCase = StopWatchUseCase(TimestampMillisecondsFormatter())
 
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(Dispatchers.Default)
     private var job: Job? = null
 
     private val mutableLiveData: MutableLiveData<String> = MutableLiveData()
@@ -48,5 +48,10 @@ class MainActivityViewModel : ViewModel() {
         scope.coroutineContext.cancelChildren()
         job = null
         mutableLiveData.postValue("00:00:000")
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        scope.cancel()
     }
 }
